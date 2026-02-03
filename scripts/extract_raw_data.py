@@ -117,7 +117,7 @@ def get_health_expenditure_data() -> None:
 
     df = (
         df.loc[
-            lambda d: (d.indicator_code == "gghed_gge") & (d.year <= 2023),
+            lambda d: (d.indicator_code == "gghed_gge") & (d.year <= GHED_END_YEAR),
             ["iso3_code", "country_name", "value", "year"],
         ]
         .rename(columns={"iso3_code": "entity_code", "country_name": "entity_name"})
