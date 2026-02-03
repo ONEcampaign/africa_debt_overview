@@ -153,8 +153,8 @@ def get_education_expenditure_data() -> None:
 if __name__ == "__main__":
     logger.info("Extracting raw data...")
 
-    get_debt_stocks_data() # debt stocks
-    get_debt_service_data() # debt service
+    get_debt_stocks_data()  # debt stocks
+    get_debt_service_data()  # debt service
     get_dsa_data()  # debt sustainability analysis
     get_gdp_data()  # gdp data
     get_gov_expenditure_data()  # government expenditure data
