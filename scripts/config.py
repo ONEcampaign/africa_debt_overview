@@ -3,6 +3,10 @@
 from pathlib import Path
 
 
+START_YEAR = 2000
+GHED_END_YEAR = 2023
+
+
 class Paths:
     """Class to store the paths to the data and output folders."""
 
