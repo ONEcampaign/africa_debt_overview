@@ -1,0 +1,11 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v0.2.2
+_src_path: gh:ONEcampaign/bblocks-projects
+author_email: luca.picci@one.org
+author_name: Luca Picci
+license: mit
+project_description: African debt overview page
+project_name: African debt overview
+project_slug: africa_debt_overview
+project_type: research
+python_version: '3.12'
