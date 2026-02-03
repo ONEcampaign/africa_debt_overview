@@ -49,6 +49,7 @@ def get_debt_service_data() -> None:
 
     logger.info("IDS debt service data downloaded successfully.")
 
+
 def get_dsa_data() -> None:
     """Get the raw data for the IMF Debt Sustainability Analysis."""
 
@@ -59,6 +60,7 @@ def get_dsa_data() -> None:
 
     logger.info("DSA data downloaded successfully.")
 
+
 def get_gdp_data() -> None:
     """Get the raw data for GDP from WEO"""
 
@@ -67,14 +69,16 @@ def get_gdp_data() -> None:
     weo = WEO()
     df = weo.get_data()
 
-    df = (df.loc[lambda d: d.indicator_code == "NGDPD"]
-    .assign(value=lambda d: d.value * d.scale_code)
-    .loc[:, ["entity_code", "entity_name", "value", "year"]]
+    df = (
+        df.loc[lambda d: d.indicator_code == "NGDPD"]
+        .assign(value=lambda d: d.value * d.scale_code)
+        .loc[:, ["entity_code", "entity_name", "value", "year"]]
     )
 
     df.to_csv(Paths.raw_data / "gdp.csv", index=False)
 
     logger.info("GDP data downloaded successfully.")
+
 
 def get_gov_expenditure_data() -> None:
     """Get the raw data for Government Expenditure from WEO"""
@@ -111,44 +115,48 @@ def get_health_expenditure_data() -> None:
     ghed = GHED()
     df = ghed.get_data()
 
-    df = (df.loc[
-              lambda d: (d.indicator_code == "gghed_gge") & (d.year <= 2023),
-              ["iso3_code", "country_name", "value", "year"],
-          ]
-          .rename(columns={"iso3_code": "entity_code", "country_name": "entity_name"})
-          .dropna(subset=["value"])
-          )
+    df = (
+        df.loc[
+            lambda d: (d.indicator_code == "gghed_gge") & (d.year <= 2023),
+            ["iso3_code", "country_name", "value", "year"],
+        ]
+        .rename(columns={"iso3_code": "entity_code", "country_name": "entity_name"})
+        .dropna(subset=["value"])
+    )
 
     df.to_csv(Paths.raw_data / "health_expenditure.csv", index=False)
 
     logger.info("Health expenditure data downloaded successfully.")
+
 
 def get_education_expenditure_data() -> None:
     """Get the raw data for Education Expenditure from WEO"""
 
     logger.info("Downloading Education expenditure data...")
 
-    df = (uis.get_data("XGOVEXP.IMF", labels=True)
-     .loc[:, ["geoUnit", "geoUnitName", "year", "value"]]
-     .rename(columns={"geoUnit": "entity_code",
-                      "geoUnitName": "entity_name",
-                      })
-     )
+    df = (
+        uis.get_data("XGOVEXP.IMF", labels=True)
+        .loc[:, ["geoUnit", "geoUnitName", "year", "value"]]
+        .rename(
+            columns={
+                "geoUnit": "entity_code",
+                "geoUnitName": "entity_name",
+            }
+        )
+    )
 
     df.to_csv(Paths.raw_data / "education_expenditure.csv", index=False)
-
 
     logger.info("Education expenditure data downloaded successfully.")
 
 
 if __name__ == "__main__":
-
     logger.info("Extracting raw data...")
 
     # get_debt_stocks_data() # debt stocks
     # get_debt_service_data() # debt service
-    get_dsa_data()          # debt sustainability analysis
-    get_gdp_data()          # gdp data
+    get_dsa_data()  # debt sustainability analysis
+    get_gdp_data()  # gdp data
     get_gov_expenditure_data()  # government expenditure data
     get_health_expenditure_data()  # health expenditure data
     get_education_expenditure_data()  # education expenditure data
