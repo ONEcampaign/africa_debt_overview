@@ -57,6 +57,5 @@ AGENTS.md
 
 raw_data/*
 !raw_data/README.md
-output/*
-!output/README.md
+#output/*
 
