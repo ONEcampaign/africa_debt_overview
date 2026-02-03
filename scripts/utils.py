@@ -78,9 +78,9 @@ def add_africa_values(df, agg_operation: str = "sum") -> pd.DataFrame:
     return dff
 
 
-def filter_african_debtors(df: pd.DataFrame,
-                           debtor_col: str = "entity_name"
-                           ) -> pd.DataFrame:
+def filter_african_debtors(
+    df: pd.DataFrame, debtor_col: str = "entity_name"
+) -> pd.DataFrame:
     """Filter the DataFrame to include only African debtor countries and regions.
 
     Args:
@@ -91,16 +91,21 @@ def filter_african_debtors(df: pd.DataFrame,
         Filtered DataFrame containing only African debtor countries and regions.
     """
 
-    groups = ['Sub-Saharan Africa (excluding high income)', 'Africa (excluding high income)']
+    groups = [
+        "Sub-Saharan Africa (excluding high income)",
+        "Africa (excluding high income)",
+    ]
 
-    filter_values = groups + places.filter_african_countries(list(df.entity_name.unique()), not_found="ignore")
+    filter_values = groups + places.filter_african_countries(
+        list(df.entity_name.unique()), not_found="ignore"
+    )
 
-    return (df
-            .loc[lambda d: d[debtor_col].isin(filter_values)]
-            .reset_index(drop=True)
-            )
+    return df.loc[lambda d: d[debtor_col].isin(filter_values)].reset_index(drop=True)
 
-def custom_sort(df: pd.DataFrame, resort_dict: dict[str, list[str] | str]) -> pd.DataFrame:
+
+def custom_sort(
+    df: pd.DataFrame, resort_dict: dict[str, list[str] | str]
+) -> pd.DataFrame:
     """Custom sort columns placing specific items on top and sorting the
     rest alphabetically
 
@@ -129,13 +134,9 @@ def custom_sort(df: pd.DataFrame, resort_dict: dict[str, list[str] | str]) -> pd
         _df[col] = pd.Categorical(
             _df[col],
             categories=values
-                       + sorted(val for val in _df[col].unique() if val not in values),
+            + sorted(val for val in _df[col].unique() if val not in values),
             ordered=True,
         )
 
     _df = _df.sort_values(list(resort_dict.keys()))
     return _df
-
-
-
-

@@ -16,29 +16,43 @@ def _prepare_debt_stocks_data(df: pd.DataFrame) -> pd.DataFrame:
     - Sorts data with custom order for entities and counterparts.
     """
 
-    categories =  { "DT.DOD.BLAT.CD": "bilateral",
+    categories = {
+        "DT.DOD.BLAT.CD": "bilateral",
         "DT.DOD.MLAT.CD": "multilateral",
         "DT.DOD.PBND.CD": "bonds",
         "DT.DOD.PCBK.CD": "commercial banks",
-        "DT.DOD.PROP.CD": "other private"}
+        "DT.DOD.PROP.CD": "other private",
+    }
 
     # filter African debtors
     dff = filter_african_debtors(df)
 
-    dff = (dff
-           .dropna(subset=["value"])
-           .assign(category = lambda d: d.indicator_code.map(categories))
-           .loc[:, ["entity_name", "year", "category", "value", "counterpart_name"]]
-           .reset_index(drop=True)
-           .assign(counterpart_name = lambda d: d.counterpart_name.replace({"World": "All creditors"}))
-           .rename(columns={"entity_name": "debtor_name", "counterpart_name": "creditor_name"})
-           .pipe(custom_sort, {"debtor_name": ['Africa (excluding high income)', 'Sub-Saharan Africa (excluding high income)'],
-                 "creditor_name": ["All creditors"]})
-           )
+    dff = (
+        dff.dropna(subset=["value"])
+        .assign(category=lambda d: d.indicator_code.map(categories))
+        .loc[:, ["entity_name", "year", "category", "value", "counterpart_name"]]
+        .reset_index(drop=True)
+        .assign(
+            counterpart_name=lambda d: d.counterpart_name.replace(
+                {"World": "All creditors"}
+            )
+        )
+        .rename(
+            columns={"entity_name": "debtor_name", "counterpart_name": "creditor_name"}
+        )
+        .pipe(
+            custom_sort,
+            {
+                "debtor_name": [
+                    "Africa (excluding high income)",
+                    "Sub-Saharan Africa (excluding high income)",
+                ],
+                "creditor_name": ["All creditors"],
+            },
+        )
+    )
 
     return dff
-
-
 
 
 def chart_1() -> None:
@@ -54,19 +68,17 @@ def chart_1() -> None:
     dff.to_csv(Paths.output / "chart_1_download.csv", index=False)
 
     # prepare chart data
-    chart_data = (dff
-                  .pivot(index=["debtor_name", "year", "creditor_name"],
-                         columns="category",
-                         values="value",
-                         )
-                  .reset_index()
-                  )
+    chart_data = dff.pivot(
+        index=["debtor_name", "year", "creditor_name"],
+        columns="category",
+        values="value",
+    ).reset_index()
 
     chart_data.to_csv(Paths.output / "chart_1_chart.csv", index=False)
 
     # generate chart json
-    (chart_data
-    .rename(
+    (
+        chart_data.rename(
             columns={
                 "debtor_name": "filter1_values",
                 "year": "x_values",
@@ -89,10 +101,6 @@ def chart_1() -> None:
 
 
 if __name__ == "__main__":
-
     logger.info("Generating charts...")
 
-    chart_1() # Chart 1: Bar, Total debt stocks
-
-
-
+    chart_1()  # Chart 1: Bar, Total debt stocks
