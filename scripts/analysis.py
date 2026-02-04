@@ -1,10 +1,11 @@
 """Module to run analysis and generate charts"""
 
 import pandas as pd
+import numpy as np
 from bblocks import places
 
-from scripts.utils import filter_african_debtors, custom_sort
-from scripts.config import Paths
+from scripts.utils import filter_african_debtors, custom_sort, format_values
+from scripts.config import Paths, LATEST_YEAR
 from scripts.logger import logger
 
 
@@ -41,6 +42,11 @@ def _prepare_debt_stocks_data(df: pd.DataFrame) -> pd.DataFrame:
         .rename(
             columns={"entity_name": "debtor_name", "counterpart_name": "creditor_name"}
         )
+        # remove white space from all columns
+        .assign(debtor_name=lambda d: d.debtor_name.str.strip(),
+                creditor_name=lambda d: d.creditor_name.str.strip(),
+                category=lambda d: d.category.str.strip(),
+                )
         .pipe(
             custom_sort,
             {
@@ -122,7 +128,7 @@ def _get_gdp_df() -> pd.DataFrame:
 def chart_2() -> None:
     """Chart 2: line, debt stocks as a percent of GDP"""
 
-    # read debt stocks data
+    # read debt stocks data and gdp data
     df = pd.read_parquet(Paths.raw_data / "ids_debt_stocks.parquet")
     gdp = _get_gdp_df()
 
@@ -172,10 +178,41 @@ def chart_2() -> None:
     df.to_csv(Paths.output / "chart_2_chart.csv", index=False)
 
 
+def chart_3() -> None:
+    """Chart 3: treemap, debt stocks  by creditor and creditor type"""
+
+    # read debt stocks data
+    df = pd.read_parquet(Paths.raw_data / "ids_debt_stocks.parquet")
+
+    # prepare data
+    df = (df
+          .pipe(_prepare_debt_stocks_data)
+          .loc[lambda d: d.year == LATEST_YEAR,]
+          .loc[lambda d: d.creditor_name != "All creditors"]  # exclude "All creditors" for this view
+          )
+
+    # export download data
+    df.to_csv(Paths.output / "chart_3_download.csv", index=False)
+
+    # prepare chart data and export
+    df = (df
+          .assign(value_annotation=lambda d: d.value.apply(format_values))
+          .assign(name_annotation=lambda d: np.where(
+                    d.category.isin(["bilateral", "commercial banks", "other private"]),
+                    d["creditor_name"].astype(str) + " (" + d["category"].astype(str) + ")",
+                    d["creditor_name"].astype(str))
+                  )
+          )
+
+    df.to_csv(Paths.output / "chart_3_chart.csv", index=False)
+
+
+
 if __name__ == "__main__":
     logger.info("Generating charts...")
 
     chart_1()  # Chart 1: Bar, Total debt stocks
     chart_2()  # Chart 2: line, debt stocks as a percent of GDP
+    chart_3()  # Chart 3: treemap, debt stocks  by creditor and creditor type
 
     logger.info("All charts generated successfully.")
