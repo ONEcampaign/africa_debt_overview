@@ -107,60 +107,69 @@ def _get_gdp_df() -> pd.DataFrame:
     # read gdp data
     gdp = pd.read_csv(Paths.raw_data / "gdp.csv")
 
-    return (gdp
-            .assign(iso3_code=lambda d: places.resolve_places(d.entity_code, to_type="iso3_code", not_found="ignore"))
-            .dropna(subset=["iso3_code"])
-            .loc[:, ["iso3_code", "year", "value"]]
-            .rename(columns={"value": "gdp"})
-              )
+    return (
+        gdp.assign(
+            iso3_code=lambda d: places.resolve_places(
+                d.entity_code, to_type="iso3_code", not_found="ignore"
+            )
+        )
+        .dropna(subset=["iso3_code"])
+        .loc[:, ["iso3_code", "year", "value"]]
+        .rename(columns={"value": "gdp"})
+    )
+
 
 def chart_2() -> None:
-     """Chart 2: line, debt stocks as a percent of GDP"""
+    """Chart 2: line, debt stocks as a percent of GDP"""
 
-     # read debt stocks data
-     df = pd.read_parquet(Paths.raw_data / "ids_debt_stocks.parquet")
-     gdp = _get_gdp_df()
+    # read debt stocks data
+    df = pd.read_parquet(Paths.raw_data / "ids_debt_stocks.parquet")
+    gdp = _get_gdp_df()
 
-     # prepare debt stocks data
-     df = (df.pipe(_prepare_debt_stocks_data)
-           .loc[lambda d: d.creditor_name == "All creditors"] # only total debt
-           .groupby(["debtor_name", "year"], observed=True) # aggregate across categories
-           .agg({"value": "sum"})
-           .reset_index()
-           .assign(iso3_code=lambda d: places.resolve_places(d.debtor_name, to_type="iso3_code", not_found="ignore"))
-           .dropna(subset=["iso3_code"]) # keep only countries
-           )
+    # prepare debt stocks data
+    df = (
+        df.pipe(_prepare_debt_stocks_data)
+        .loc[lambda d: d.creditor_name == "All creditors"]  # only total debt
+        .groupby(["debtor_name", "year"], observed=True)  # aggregate across categories
+        .agg({"value": "sum"})
+        .reset_index()
+        .assign(
+            iso3_code=lambda d: places.resolve_places(
+                d.debtor_name, to_type="iso3_code", not_found="ignore"
+            )
+        )
+        .dropna(subset=["iso3_code"])  # keep only countries
+    )
 
-     # merge with gdp data and calculate debt to gdp ratio
-     df = (df
-           .merge(gdp, on=["iso3_code", "year"], how="left", validate="many_to_one")
-           .dropna(subset=["gdp"]) # drop rows with missing gdp data
-           .assign(debt_to_gdp=lambda d: d.value / d.gdp * 100)
-           .drop(columns=["value", "gdp"]) # drop unnecessary columns
-           )
+    # merge with gdp data and calculate debt to gdp ratio
+    df = (
+        df.merge(gdp, on=["iso3_code", "year"], how="left", validate="many_to_one")
+        .dropna(subset=["gdp"])  # drop rows with missing gdp data
+        .assign(debt_to_gdp=lambda d: d.value / d.gdp * 100)
+        .drop(columns=["value", "gdp"])  # drop unnecessary columns
+    )
 
-     # calculate Africa median debt stocks to gdp ratio
-     africa_median = (df.groupby(["year"], observed=True)
-                      .agg({"debt_to_gdp": "median"})
-                      .assign(debtor_name="Africa (excluding high income) (median)")
-                      .reset_index()
-                      )
+    # calculate Africa median debt stocks to gdp ratio
+    africa_median = (
+        df.groupby(["year"], observed=True)
+        .agg({"debt_to_gdp": "median"})
+        .assign(debtor_name="Africa (excluding high income) (median)")
+        .reset_index()
+    )
 
-     # combine country data with Africa median
-     df = (pd.concat([df, africa_median], ignore_index=True)
-           .rename(columns = {"debt_to_gdp": "value"})
-           .pipe(custom_sort,{"debtor_name": ["Africa (excluding high income) (median)"]})
-           )
+    # combine country data with Africa median
+    df = (
+        pd.concat([df, africa_median], ignore_index=True)
+        .rename(columns={"debt_to_gdp": "value"})
+        .pipe(custom_sort, {"debtor_name": ["Africa (excluding high income) (median)"]})
+    )
 
-     # export download data
-     df.to_csv(Paths.output / "chart_2_download.csv", index=False)
+    # export download data
+    df.to_csv(Paths.output / "chart_2_download.csv", index=False)
 
-     # prepare chart data and export
-     df = (df
-           .pivot(index="year", columns="debtor_name", values="value")
-            .reset_index()
-           )
-     df.to_csv(Paths.output / "chart_2_chart.csv", index=False)
+    # prepare chart data and export
+    df = df.pivot(index="year", columns="debtor_name", values="value").reset_index()
+    df.to_csv(Paths.output / "chart_2_chart.csv", index=False)
 
 
 if __name__ == "__main__":
