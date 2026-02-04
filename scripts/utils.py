@@ -141,6 +141,7 @@ def custom_sort(
     _df = _df.sort_values(list(resort_dict.keys()))
     return _df
 
+
 def format_values(value: float | int) -> str:
     """Format a numeric value into a human-readable string with appropriate
     units (millions, billions, trillions).

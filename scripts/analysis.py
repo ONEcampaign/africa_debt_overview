@@ -43,10 +43,11 @@ def _prepare_debt_stocks_data(df: pd.DataFrame) -> pd.DataFrame:
             columns={"entity_name": "debtor_name", "counterpart_name": "creditor_name"}
         )
         # remove white space from all columns
-        .assign(debtor_name=lambda d: d.debtor_name.str.strip(),
-                creditor_name=lambda d: d.creditor_name.str.strip(),
-                category=lambda d: d.category.str.strip(),
-                )
+        .assign(
+            debtor_name=lambda d: d.debtor_name.str.strip(),
+            creditor_name=lambda d: d.creditor_name.str.strip(),
+            category=lambda d: d.category.str.strip(),
+        )
         .pipe(
             custom_sort,
             {
@@ -185,27 +186,27 @@ def chart_3() -> None:
     df = pd.read_parquet(Paths.raw_data / "ids_debt_stocks.parquet")
 
     # prepare data
-    df = (df
-          .pipe(_prepare_debt_stocks_data)
-          .loc[lambda d: d.year == LATEST_YEAR,]
-          .loc[lambda d: d.creditor_name != "All creditors"]  # exclude "All creditors" for this view
-          )
+    df = (
+        df.pipe(_prepare_debt_stocks_data)
+        .loc[lambda d: d.year == LATEST_YEAR,]
+        .loc[
+            lambda d: d.creditor_name != "All creditors"
+        ]  # exclude "All creditors" for this view
+    )
 
     # export download data
     df.to_csv(Paths.output / "chart_3_download.csv", index=False)
 
     # prepare chart data and export
-    df = (df
-          .assign(value_annotation=lambda d: d.value.apply(format_values))
-          .assign(name_annotation=lambda d: np.where(
-                    d.category.isin(["bilateral", "commercial banks", "other private"]),
-                    d["creditor_name"].astype(str) + " (" + d["category"].astype(str) + ")",
-                    d["creditor_name"].astype(str))
-                  )
-          )
+    df = df.assign(value_annotation=lambda d: d.value.apply(format_values)).assign(
+        name_annotation=lambda d: np.where(
+            d.category.isin(["bilateral", "commercial banks", "other private"]),
+            d["creditor_name"].astype(str) + " (" + d["category"].astype(str) + ")",
+            d["creditor_name"].astype(str),
+        )
+    )
 
     df.to_csv(Paths.output / "chart_3_chart.csv", index=False)
-
 
 
 if __name__ == "__main__":
