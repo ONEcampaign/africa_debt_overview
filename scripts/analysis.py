@@ -308,14 +308,7 @@ def _prepare_debt_service_data(df: pd.DataFrame) -> pd.DataFrame:
 
     .assign(debtor_name=lambda d: d.debtor_name.str.strip(),
             creditor_name=lambda d: d.creditor_name.str.strip(),)
-    .pipe(custom_sort, {
-                "debtor_name": [
-                    "Africa (excluding high income)",
-                    "Sub-Saharan Africa (excluding high income)",
-                ],
-                "creditor_name": ["All creditors"],
-            },
-        )
+
     .reset_index(drop=True)
 
 )
@@ -340,6 +333,15 @@ def chart_5() -> None:
     df = (df.groupby(["year", "debtor_name", "creditor_name", "category"], observed=True)
         .agg({"value": "sum"})
         .reset_index()
+        .pipe(custom_sort, {
+        "debtor_name": [
+            "Africa (excluding high income)",
+            "Sub-Saharan Africa (excluding high income)",
+        ],
+        "creditor_name": ["All creditors"],
+    },
+                )
+          .reset_index(drop=True)
           )
 
     # export download data
