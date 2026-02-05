@@ -5,7 +5,16 @@ from pathlib import Path
 
 START_YEAR = 2000
 LATEST_YEAR = 2024
+NUM_EST_YEARS = 6
 GHED_END_YEAR = 2023
+
+SORT_PARAMS = {
+    "debtor_name": [
+        "Africa (excluding high income)",
+        "Sub-Saharan Africa (excluding high income)",
+    ],
+    "creditor_name": ["All creditors"],
+}
 
 
 class Paths:

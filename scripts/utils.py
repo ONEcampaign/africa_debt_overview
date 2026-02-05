@@ -118,27 +118,25 @@ def custom_sort(
         A resorted DataFrame
     """
 
-    # create a copy of df
     _df = df.copy(deep=True)
 
-    # convert all values to list
-    for k, v in resort_dict.items():
-        if isinstance(v, str):
-            resort_dict[k] = [resort_dict[k]]
-
-        # check if all passed columns exist
-        if k not in list(_df.columns):
-            raise ValueError(f"Column not found: {k}")
-
+    sort_cols = []
     for col, values in resort_dict.items():
-        _df[col] = pd.Categorical(
-            _df[col],
-            categories=values
-            + sorted(val for val in _df[col].unique() if val not in values),
-            ordered=True,
-        )
+        if col not in _df.columns:
+            raise ValueError(f"Column not found: {col}")
 
-    _df = _df.sort_values(list(resort_dict.keys()))
+        if isinstance(values, str):
+            values = [values]
+
+        priority = {v: i for i, v in enumerate(values)}
+        n = len(values)
+
+        key_col = f"__sort_key_{col}"
+        _df[key_col] = _df[col].map(lambda x, p=priority, d=n: p.get(x, d))
+        sort_cols.extend([key_col, col])
+
+    _df = _df.sort_values(sort_cols).drop(columns=sort_cols[::2]).reset_index(drop=True)
+
     return _df
 
 
