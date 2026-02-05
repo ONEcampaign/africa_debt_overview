@@ -280,6 +280,9 @@ def _prepare_debt_service_data(df: pd.DataFrame) -> pd.DataFrame:
         "DT.INT.PROP.CD": {"category": "other private", "type": "interest"},
     }
 
+    # filter African debtors
+    df = filter_african_debtors(df)
+
     return (df
  .dropna(subset="value")
  .loc[lambda d: (d.year >= START_YEAR) & (d.year <= LATEST_YEAR + NUM_EST_YEARS),
@@ -377,10 +380,10 @@ def chart_5() -> None:
 if __name__ == "__main__":
     logger.info("Generating charts...")
 
-    # chart_1()  # Chart 1: Bar, Total debt stocks
-    # chart_2()  # Chart 2: line, debt stocks as a percent of GDP
-    # chart_3()  # Chart 3: treemap, debt stocks  by creditor and creditor type
-    # chart_4()  # Chart 4: bar chart, china proportion lending
+    chart_1()  # Chart 1: Bar, Total debt stocks
+    chart_2()  # Chart 2: line, debt stocks as a percent of GDP
+    chart_3()  # Chart 3: treemap, debt stocks  by creditor and creditor type
+    chart_4()  # Chart 4: bar chart, china proportion lending
     chart_5()  # Chart 5: line chart, debt service payments over time
 
     logger.info("All charts generated successfully.")
