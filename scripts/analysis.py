@@ -212,6 +212,7 @@ def chart_3() -> None:
 
     logger.info("Chart 3 generated successfully.")
 
+
 def chart_4() -> None:
     """Chart 4: bar chart, china proportion lending"""
 
@@ -222,51 +223,45 @@ def chart_4() -> None:
     df = df.pipe(_prepare_debt_stocks_data)
 
     # create a China df
-    china_df = (df
-                .loc[lambda d: d.creditor_name == "China"]
-                # replace commercial banks and other private with private
-                .assign(category=lambda d: d.category.replace({"commercial banks": "private",
-                                                               "other private": "private"}))
-                .groupby(["debtor_name", "year", "category"], observed=True)
-                .agg({"value": "sum"})
-                .reset_index()
-                .assign(category=lambda d: "China " + "(" + d.category + ")")
-                )
+    china_df = (
+        df.loc[lambda d: d.creditor_name == "China"]
+        # replace commercial banks and other private with private
+        .assign(
+            category=lambda d: d.category.replace(
+                {"commercial banks": "private", "other private": "private"}
+            )
+        )
+        .groupby(["debtor_name", "year", "category"], observed=True)
+        .agg({"value": "sum"})
+        .reset_index()
+        .assign(category=lambda d: "China " + "(" + d.category + ")")
+    )
 
     # create a other creditors excluding china df
-    other_df = (df
-                .loc[lambda d: ~d.creditor_name.isin(["All creditors", "China"])]
-                .groupby(["debtor_name", "year"], observed=True)
-                .agg({"value": "sum"})
-                .reset_index()
-                .assign(category="Other creditors")
-                )
+    other_df = (
+        df.loc[lambda d: ~d.creditor_name.isin(["All creditors", "China"])]
+        .groupby(["debtor_name", "year"], observed=True)
+        .agg({"value": "sum"})
+        .reset_index()
+        .assign(category="Other creditors")
+    )
 
     # combine both dataframes
-    combined_df = (pd.concat([china_df, other_df], ignore_index=True)
-                   .rename(columns = {"category": "creditor"})
-                   )
+    combined_df = pd.concat([china_df, other_df], ignore_index=True).rename(
+        columns={"category": "creditor"}
+    )
 
     # export download data
     combined_df.to_csv(Paths.output / "chart_4_download.csv", index=False)
 
     # prepare chart data and export
-    chart_df = (combined_df
-                .pivot(index=["debtor_name", "year"], columns="creditor", values="value")
-                .reset_index()
-                )
+    chart_df = combined_df.pivot(
+        index=["debtor_name", "year"], columns="creditor", values="value"
+    ).reset_index()
 
     chart_df.to_csv(Paths.output / "chart_4_chart.csv", index=False)
 
     logger.info("Chart 4 generated successfully.")
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
