@@ -8,6 +8,14 @@ LATEST_YEAR = 2024
 NUM_EST_YEARS = 6
 GHED_END_YEAR = 2023
 
+SORT_PARAMS = {
+    "debtor_name": [
+        "Africa (excluding high income)",
+        "Sub-Saharan Africa (excluding high income)",
+    ],
+    "creditor_name": ["All creditors"],
+}
+
 
 class Paths:
     """Class to store the paths to the data and output folders."""
