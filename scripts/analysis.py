@@ -317,7 +317,7 @@ def _prepare_debt_service_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def chart_5() -> None:
-    """Chart 5: line chart, debt service payments over time"""
+    """Chart 5: bar chart, debt service payments over time"""
 
     # read debt service data
     df = pd.read_parquet(Paths.raw_data / "ids_debt_service.parquet")
@@ -495,6 +495,60 @@ def chart_6() -> None:
     logger.info("Chart 6 generated successfully.")
 
 
+def key_stat_chart_1() -> None:
+    """Key stat chart 1: Africa total debt service"""
+
+    # use final chart 5 data
+    df = pd.read_csv(Paths.output / "chart_5_download.csv")
+
+    (
+        df.loc[
+            lambda d: (d.debtor_name == "Africa (excluding high income)")
+            & (d.creditor_name == "All creditors")
+        ]
+        .groupby(["year"], observed=True, as_index=False)
+        .agg({"value": "sum"})
+        .assign(annotation=lambda d: d.value.apply(format_values))
+        .to_csv(Paths.output / "key_stat_chart_1.csv", index=False)
+    )
+
+    logger.info("Key stat chart 1 generated successfully.")
+
+
+def key_stat_chart_2() -> None:
+    """Key stat chart 2: Africa total debt stocks"""
+
+    df = pd.read_csv(Paths.output / "chart_1_download.csv")
+
+    (
+        df.loc[
+            lambda d: (d.debtor_name == "Africa (excluding high income)")
+            & (d.creditor_name == "All creditors")
+        ]
+        .groupby(["year"], observed=True, as_index=False)
+        .agg({"value": "sum"})
+        .assign(annotation=lambda d: d.value.apply(format_values))
+        .to_csv(Paths.output / "key_stat_chart_2.csv", index=False)
+    )
+
+    logger.info("Key stat chart 2 generated successfully.")
+
+
+def key_stat_chart_3() -> None:
+    """Key stat chart 3: Africa median debt stocks % of GDP"""
+
+    df = pd.read_csv(Paths.output / "chart_2_download.csv")
+
+    (
+        df.loc[
+            lambda d: d.debtor_name == "Africa (excluding high income) (median)",
+            ["debtor_name", "year", "value"],
+        ].to_csv(Paths.output / "key_stat_chart_3.csv", index=False)
+    )
+
+    logger.info("Key stat chart 3 generated successfully.")
+
+
 if __name__ == "__main__":
     logger.info("Generating charts...")
 
@@ -504,5 +558,9 @@ if __name__ == "__main__":
     chart_4()  # Chart 4: bar chart, china proportion lending
     chart_5()  # Chart 5: line chart, debt service payments over time
     chart_6()  # Chart 6: line chart, debt service percent of government spending with health and education expenditure
+
+    key_stat_chart_1()  # Key stat chart 1: Africa total debt service
+    key_stat_chart_2()  # Key stat chart 2: Africa total debt stocks
+    key_stat_chart_3()  # Key stat chart 3: Africa median debt stocks % of GDP
 
     logger.info("All charts generated successfully.")
