@@ -67,11 +67,13 @@ def chart_1() -> None:
     dff.to_csv(Paths.output / "chart_1_download.csv", index=False)
 
     # prepare chart data
-    chart_data = dff.pivot(
+    chart_data = (dff.pivot(
         index=["debtor_name", "year", "creditor_name"],
         columns="category",
         values="value",
     ).reset_index()
+    .pipe(custom_sort, SORT_PARAMS)
+    )
 
     chart_data.to_csv(Paths.output / "chart_1_chart.csv", index=False)
 
@@ -246,9 +248,11 @@ def chart_4() -> None:
     combined_df.to_csv(Paths.output / "chart_4_download.csv", index=False)
 
     # prepare chart data and export
-    chart_df = combined_df.pivot(
+    chart_df = (combined_df.pivot(
         index=["debtor_name", "year"], columns="creditor", values="value"
     ).reset_index()
+    .pipe(custom_sort, {"debtor_name": SORT_PARAMS["debtor_name"]})
+    )
 
     chart_df.to_csv(Paths.output / "chart_4_chart.csv", index=False)
 
