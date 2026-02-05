@@ -5,7 +5,7 @@ import numpy as np
 from bblocks import places
 
 from scripts.utils import filter_african_debtors, custom_sort, format_values
-from scripts.config import Paths, LATEST_YEAR, START_YEAR, NUM_EST_YEARS
+from scripts.config import Paths, LATEST_YEAR, START_YEAR, NUM_EST_YEARS, SORT_PARAMS
 from scripts.logger import logger
 
 
@@ -48,16 +48,7 @@ def _prepare_debt_stocks_data(df: pd.DataFrame) -> pd.DataFrame:
             creditor_name=lambda d: d.creditor_name.str.strip(),
             category=lambda d: d.category.str.strip(),
         )
-        .pipe(
-            custom_sort,
-            {
-                "debtor_name": [
-                    "Africa (excluding high income)",
-                    "Sub-Saharan Africa (excluding high income)",
-                ],
-                "creditor_name": ["All creditors"],
-            },
-        )
+        .pipe(custom_sort, SORT_PARAMS)
     )
 
     return dff
@@ -333,19 +324,10 @@ def chart_5() -> None:
     df = (df.groupby(["year", "debtor_name", "creditor_name", "category"], observed=True)
         .agg({"value": "sum"})
         .reset_index()
-        .pipe(custom_sort, {
-        "debtor_name": [
-            "Africa (excluding high income)",
-            "Sub-Saharan Africa (excluding high income)",
-        ],
-        "creditor_name": ["All creditors"],
-    },
-                )
-          .reset_index(drop=True)
           )
 
-    # export download data
-    df.to_csv(Paths.output / "chart_5_download.csv", index=False)
+    # sort and export download data
+    df.pipe(custom_sort, SORT_PARAMS).to_csv(Paths.output / "chart_5_download.csv", index=False)
 
     # prepare chart data and export
     chart_data = (df
@@ -354,6 +336,7 @@ def chart_5() -> None:
                            values="value"
                            )
                   .reset_index()
+                  .pipe(custom_sort, SORT_PARAMS)
                   )
 
     chart_data.to_csv(Paths.output / "chart_5_chart.csv", index=False)
