@@ -91,6 +91,13 @@ def get_gov_expenditure_data() -> None:
         .loc[lambda d: d.indicator_code == "GGX"]
         .assign(value=lambda d: d.value * d.scale_code)
         .loc[:, ["entity_code", "year", "value"]]
+    )
+
+    # TODO: Temp fix for pydeflate error, remove Hong Kong and Macao
+    df = df.loc[lambda d: ~d.entity_code.isin(["HKG", "MAC", "CHN"])]
+
+    # deflate
+    df = (df
         .pipe(
             imf_exchange,
             source_currency="LCU",
@@ -153,12 +160,12 @@ def get_education_expenditure_data() -> None:
 if __name__ == "__main__":
     logger.info("Extracting raw data...")
 
-    get_debt_stocks_data()  # debt stocks
-    get_debt_service_data()  # debt service
-    get_dsa_data()  # debt sustainability analysis
-    get_gdp_data()  # gdp data
+    # get_debt_stocks_data()  # debt stocks
+    # get_debt_service_data()  # debt service
+    # get_dsa_data()  # debt sustainability analysis
+    # get_gdp_data()  # gdp data
     get_gov_expenditure_data()  # government expenditure data
-    get_health_expenditure_data()  # health expenditure data
-    get_education_expenditure_data()  # education expenditure data
+    # get_health_expenditure_data()  # health expenditure data
+    # get_education_expenditure_data()  # education expenditure data
 
     logger.info("Raw data extraction complete.")
