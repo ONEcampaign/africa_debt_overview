@@ -67,12 +67,14 @@ def chart_1() -> None:
     dff.to_csv(Paths.output / "chart_1_download.csv", index=False)
 
     # prepare chart data
-    chart_data = (dff.pivot(
-        index=["debtor_name", "year", "creditor_name"],
-        columns="category",
-        values="value",
-    ).reset_index()
-    .pipe(custom_sort, SORT_PARAMS)
+    chart_data = (
+        dff.pivot(
+            index=["debtor_name", "year", "creditor_name"],
+            columns="category",
+            values="value",
+        )
+        .reset_index()
+        .pipe(custom_sort, SORT_PARAMS)
     )
 
     chart_data.to_csv(Paths.output / "chart_1_chart.csv", index=False)
@@ -248,10 +250,12 @@ def chart_4() -> None:
     combined_df.to_csv(Paths.output / "chart_4_download.csv", index=False)
 
     # prepare chart data and export
-    chart_df = (combined_df.pivot(
-        index=["debtor_name", "year"], columns="creditor", values="value"
-    ).reset_index()
-    .pipe(custom_sort, {"debtor_name": SORT_PARAMS["debtor_name"]})
+    chart_df = (
+        combined_df.pivot(
+            index=["debtor_name", "year"], columns="creditor", values="value"
+        )
+        .reset_index()
+        .pipe(custom_sort, {"debtor_name": SORT_PARAMS["debtor_name"]})
     )
 
     chart_df.to_csv(Paths.output / "chart_4_chart.csv", index=False)
@@ -278,35 +282,39 @@ def _prepare_debt_service_data(df: pd.DataFrame) -> pd.DataFrame:
     # filter African debtors
     df = filter_african_debtors(df)
 
-    return (df
- .dropna(subset="value")
- .loc[lambda d: (d.year >= START_YEAR) & (d.year <= LATEST_YEAR + NUM_EST_YEARS),
-    [
+    return (
+        df.dropna(subset="value")
+        .loc[
+            lambda d: (d.year >= START_YEAR) & (d.year <= LATEST_YEAR + NUM_EST_YEARS),
+            [
                 "indicator_name",
                 "indicator_code",
                 "year",
                 "entity_name",
                 "counterpart_name",
                 "value",
-            ]
-    ]
-.assign(counterpart_name=lambda d: d.counterpart_name.replace({"World": "All creditors"}))
- .rename(
+            ],
+        ]
+        .assign(
+            counterpart_name=lambda d: d.counterpart_name.replace(
+                {"World": "All creditors"}
+            )
+        )
+        .rename(
             columns={"entity_name": "debtor_name", "counterpart_name": "creditor_name"}
         )
-
         .assign(
             category=lambda d: d.indicator_code.map(lambda x: mapping[x]["category"]),
             type=lambda d: d.indicator_code.map(lambda x: mapping[x]["type"]),
         )
-    .drop(columns="indicator_code")
+        .drop(columns="indicator_code")
+        .assign(
+            debtor_name=lambda d: d.debtor_name.str.strip(),
+            creditor_name=lambda d: d.creditor_name.str.strip(),
+        )
+        .reset_index(drop=True)
+    )
 
-    .assign(debtor_name=lambda d: d.debtor_name.str.strip(),
-            creditor_name=lambda d: d.creditor_name.str.strip(),)
-
-    .reset_index(drop=True)
-
-)
 
 def chart_5() -> None:
     """Chart 5: line chart, debt service payments over time"""
@@ -325,29 +333,34 @@ def chart_5() -> None:
     )
 
     # aggregate across categories to get total debt service payments by debtor and creditor
-    df = (df.groupby(["year", "debtor_name", "creditor_name", "category"], observed=True)
+    df = (
+        df.groupby(["year", "debtor_name", "creditor_name", "category"], observed=True)
         .agg({"value": "sum"})
         .reset_index()
-          )
+    )
 
     # sort and export download data
-    df.pipe(custom_sort, SORT_PARAMS).to_csv(Paths.output / "chart_5_download.csv", index=False)
+    df.pipe(custom_sort, SORT_PARAMS).to_csv(
+        Paths.output / "chart_5_download.csv", index=False
+    )
 
     # prepare chart data and export
-    chart_data = (df
-                  .pivot(index=["debtor_name", "year", "creditor_name"],
-                           columns="category",
-                           values="value"
-                           )
-                  .reset_index()
-                  .pipe(custom_sort, SORT_PARAMS)
-                  )
+    chart_data = (
+        df.pivot(
+            index=["debtor_name", "year", "creditor_name"],
+            columns="category",
+            values="value",
+        )
+        .reset_index()
+        .pipe(custom_sort, SORT_PARAMS)
+    )
 
     chart_data.to_csv(Paths.output / "chart_5_chart.csv", index=False)
 
     # chart json data
-    (chart_data
-    .rename(columns={
+    (
+        chart_data.rename(
+            columns={
                 "debtor_name": "filter1_values",
                 "year": "x_values",
                 "creditor_name": "filter2_values",
@@ -358,9 +371,11 @@ def chart_5() -> None:
                 "other private": "y5",
             }
         )
-     .assign(y_values=lambda d: d[["y1", "y2", "y3", "y4", "y5"]].values.tolist())
-     .loc[:, ["filter1_values", "x_values", "filter2_values", "y_values"]]
-     .to_json(Paths.output / "chart_5_chart.json", orient="records", date_format="iso")
+        .assign(y_values=lambda d: d[["y1", "y2", "y3", "y4", "y5"]].values.tolist())
+        .loc[:, ["filter1_values", "x_values", "filter2_values", "y_values"]]
+        .to_json(
+            Paths.output / "chart_5_chart.json", orient="records", date_format="iso"
+        )
     )
 
     logger.info("Chart 5 generated successfully.")
