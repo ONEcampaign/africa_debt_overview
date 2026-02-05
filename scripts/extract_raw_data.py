@@ -91,16 +91,20 @@ def get_gov_expenditure_data() -> None:
         .loc[lambda d: d.indicator_code == "GGX"]
         .assign(value=lambda d: d.value * d.scale_code)
         .loc[:, ["entity_code", "year", "value"]]
-        .pipe(
-            imf_exchange,
-            source_currency="LCU",
-            target_currency="USD",
-            id_column="entity_code",
-            value_column="value",
-            target_value_column="value",
-        )
-        .dropna(subset=["value"])
     )
+
+    # TODO: Temp fix for pydeflate error, remove Hong Kong and Macao
+    df = df.loc[lambda d: ~d.entity_code.isin(["HKG", "MAC", "CHN"])]
+
+    # deflate
+    df = df.pipe(
+        imf_exchange,
+        source_currency="LCU",
+        target_currency="USD",
+        id_column="entity_code",
+        value_column="value",
+        target_value_column="value",
+    ).dropna(subset=["value"])
 
     df.to_csv(Paths.raw_data / "gov_expenditure.csv", index=False)
 
