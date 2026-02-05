@@ -97,17 +97,14 @@ def get_gov_expenditure_data() -> None:
     df = df.loc[lambda d: ~d.entity_code.isin(["HKG", "MAC", "CHN"])]
 
     # deflate
-    df = (df
-        .pipe(
-            imf_exchange,
-            source_currency="LCU",
-            target_currency="USD",
-            id_column="entity_code",
-            value_column="value",
-            target_value_column="value",
-        )
-        .dropna(subset=["value"])
-    )
+    df = df.pipe(
+        imf_exchange,
+        source_currency="LCU",
+        target_currency="USD",
+        id_column="entity_code",
+        value_column="value",
+        target_value_column="value",
+    ).dropna(subset=["value"])
 
     df.to_csv(Paths.raw_data / "gov_expenditure.csv", index=False)
 

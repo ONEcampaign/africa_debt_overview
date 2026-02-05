@@ -390,15 +390,17 @@ def _calculate_debt_service_pct_gov_spending(ds_df: pd.DataFrame) -> pd.DataFram
 
     gov_df = pd.read_csv(Paths.raw_data / "gov_expenditure.csv")
 
-    return (ds_df
-     .merge(gov_df.rename(columns={"value": "gov_spending"}),
+    return (
+        ds_df.merge(
+            gov_df.rename(columns={"value": "gov_spending"}),
             how="left",
             on=["entity_code", "year"],
-            validate="one_to_one")
-     .assign(ds_pct_gov_spending=lambda d: d["value"] / d["gov_spending"] * 100)
-     .drop(columns="gov_spending")
+            validate="one_to_one",
+        )
+        .assign(ds_pct_gov_spending=lambda d: d["value"] / d["gov_spending"] * 100)
+        .drop(columns="gov_spending")
+    )
 
-     )
 
 def chart_6() -> None:
     """Chart 6: line chart, debt service percent of government spending with
@@ -408,42 +410,47 @@ def chart_6() -> None:
     # get debt service data as a percent of government spending
     ds_df = pd.read_parquet(Paths.raw_data / "ids_debt_service.parquet")
     ds_df = _prepare_debt_service_data(ds_df)
-    ds_df = (ds_df
-             .loc[lambda d: (d.creditor_name == "All creditors") & (d.year <= LATEST_YEAR)]
-             .groupby(["debtor_name", "year"], as_index=False)
-             .agg({"value": "sum"})
-             .assign(entity_code=lambda d: places.resolve_places(d.debtor_name,
-                                                                 to_type="iso3_code",
-                                                                 not_found="ignore"))
-             .dropna(subset="entity_code")
-             .reset_index(drop=True)
-             )
+    ds_df = (
+        ds_df.loc[
+            lambda d: (d.creditor_name == "All creditors") & (d.year <= LATEST_YEAR)
+        ]
+        .groupby(["debtor_name", "year"], as_index=False)
+        .agg({"value": "sum"})
+        .assign(
+            entity_code=lambda d: places.resolve_places(
+                d.debtor_name, to_type="iso3_code", not_found="ignore"
+            )
+        )
+        .dropna(subset="entity_code")
+        .reset_index(drop=True)
+    )
     ds_df = _calculate_debt_service_pct_gov_spending(ds_df)
 
     # merge health expenditure data
     health_df = pd.read_csv(Paths.raw_data / "health_expenditure.csv")
-    ds_df = (ds_df
-             .merge((health_df
-                     .loc[:, ["entity_code", "year", "value"]]
-                     .rename(columns={"value": "health_expenditure"})
-                     ),
-                    how="left",
-                    on=["entity_code", "year"],
-                    validate="one_to_one"
-                    )
-             )
+    ds_df = ds_df.merge(
+        (
+            health_df.loc[:, ["entity_code", "year", "value"]].rename(
+                columns={"value": "health_expenditure"}
+            )
+        ),
+        how="left",
+        on=["entity_code", "year"],
+        validate="one_to_one",
+    )
 
     # merge education expenditure data
     education_df = pd.read_csv(Paths.raw_data / "education_expenditure.csv")
-    ds_df = (ds_df.merge((education_df
-               .loc[:, ["entity_code", "year", "value"]]
-               .rename(columns={"value": "education_expenditure"})
-               ),
-              how="left",
-              on=["entity_code", "year"],
-              validate="one_to_one"
-              )
-     )
+    ds_df = ds_df.merge(
+        (
+            education_df.loc[:, ["entity_code", "year", "value"]].rename(
+                columns={"value": "education_expenditure"}
+            )
+        ),
+        how="left",
+        on=["entity_code", "year"],
+        validate="one_to_one",
+    )
 
     # Add Africa median values
     africa_median = (
@@ -454,28 +461,35 @@ def chart_6() -> None:
         )
         .loc[lambda d: d.region == "Africa"]
         .groupby("year", as_index=False)
-        .agg({"ds_pct_gov_spending": "median",
-              "health_expenditure": "median",
-              "education_expenditure": "median"})
+        .agg(
+            {
+                "ds_pct_gov_spending": "median",
+                "health_expenditure": "median",
+                "education_expenditure": "median",
+            }
+        )
         .assign(debtor_name="Africa (excluding high income) (median)")
     )
 
     ds_df = pd.concat([ds_df, africa_median], ignore_index=True)
 
     # final formatting
-    ds_df = (ds_df
-    .drop(columns="value")
-             .rename(columns={"ds_pct_gov_spending": "debt service",
-                       "health_expenditure": "health expenditure",
-                       "education_expenditure": "education expenditure"
-                       })
-             .pipe(custom_sort, {"debtor_name": SORT_PARAMS["debtor_name"]})
-             )
+    ds_df = (
+        ds_df.drop(columns="value")
+        .rename(
+            columns={
+                "ds_pct_gov_spending": "debt service",
+                "health_expenditure": "health expenditure",
+                "education_expenditure": "education expenditure",
+            }
+        )
+        .pipe(custom_sort, {"debtor_name": SORT_PARAMS["debtor_name"]})
+    )
 
     # export download data
     ds_df.to_csv(Paths.output / "chart_6_download.csv", index=False)
 
-    #export chart data
+    # export chart data
     ds_df.to_csv(Paths.output / "chart_6_chart.csv", index=False)
 
     logger.info("Chart 6 generated successfully.")
