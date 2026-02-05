@@ -178,6 +178,8 @@ def chart_2() -> None:
     df = df.pivot(index="year", columns="debtor_name", values="value").reset_index()
     df.to_csv(Paths.output / "chart_2_chart.csv", index=False)
 
+    logger.info("Chart 2 generated successfully.")
+
 
 def chart_3() -> None:
     """Chart 3: treemap, debt stocks  by creditor and creditor type"""
@@ -208,6 +210,59 @@ def chart_3() -> None:
 
     df.to_csv(Paths.output / "chart_3_chart.csv", index=False)
 
+    logger.info("Chart 3 generated successfully.")
+
+
+def chart_4() -> None:
+    """Chart 4: bar chart, china proportion lending"""
+
+    # read debt stocks data
+    df = pd.read_parquet(Paths.raw_data / "ids_debt_stocks.parquet")
+
+    # prepare data
+    df = df.pipe(_prepare_debt_stocks_data)
+
+    # create a China df
+    china_df = (
+        df.loc[lambda d: d.creditor_name == "China"]
+        # replace commercial banks and other private with private
+        .assign(
+            category=lambda d: d.category.replace(
+                {"commercial banks": "private", "other private": "private"}
+            )
+        )
+        .groupby(["debtor_name", "year", "category"], observed=True)
+        .agg({"value": "sum"})
+        .reset_index()
+        .assign(category=lambda d: "China " + "(" + d.category + ")")
+    )
+
+    # create a other creditors excluding china df
+    other_df = (
+        df.loc[lambda d: ~d.creditor_name.isin(["All creditors", "China"])]
+        .groupby(["debtor_name", "year"], observed=True)
+        .agg({"value": "sum"})
+        .reset_index()
+        .assign(category="Other creditors")
+    )
+
+    # combine both dataframes
+    combined_df = pd.concat([china_df, other_df], ignore_index=True).rename(
+        columns={"category": "creditor"}
+    )
+
+    # export download data
+    combined_df.to_csv(Paths.output / "chart_4_download.csv", index=False)
+
+    # prepare chart data and export
+    chart_df = combined_df.pivot(
+        index=["debtor_name", "year"], columns="creditor", values="value"
+    ).reset_index()
+
+    chart_df.to_csv(Paths.output / "chart_4_chart.csv", index=False)
+
+    logger.info("Chart 4 generated successfully.")
+
 
 if __name__ == "__main__":
     logger.info("Generating charts...")
@@ -215,5 +270,6 @@ if __name__ == "__main__":
     chart_1()  # Chart 1: Bar, Total debt stocks
     chart_2()  # Chart 2: line, debt stocks as a percent of GDP
     chart_3()  # Chart 3: treemap, debt stocks  by creditor and creditor type
+    chart_4()  # Chart 4: bar chart, china proportion lending
 
     logger.info("All charts generated successfully.")
