@@ -502,7 +502,7 @@ def key_stat_chart_1() -> None:
     # use final chart 5 data
     df = pd.read_csv(Paths.output / "chart_5_download.csv")
 
-    (
+    dff = (
         df.loc[
             lambda d: (d.debtor_name == "Africa (excluding high income)")
             & (d.creditor_name == "All creditors")
@@ -510,8 +510,15 @@ def key_stat_chart_1() -> None:
         .groupby(["year"], observed=True, as_index=False)
         .agg({"value": "sum"})
         .assign(annotation=lambda d: d.value.apply(format_values))
-        .to_csv(Paths.output / "key_stat_chart_1.csv", index=False)
     )
+
+    is_estimate = dff["year"] >= LATEST_YEAR
+    is_future = dff["year"] > LATEST_YEAR
+    dff["value_estimate"] = dff.loc[is_estimate, "value"]
+    dff["estimate_annotation"] = np.where(is_future, "(estimate)", "")
+    dff.loc[is_future, "value"] = np.nan
+
+    dff.to_csv(Paths.output / "key_stat_chart_1.csv", index=False)
 
     logger.info("Key stat chart 1 generated successfully.")
 
