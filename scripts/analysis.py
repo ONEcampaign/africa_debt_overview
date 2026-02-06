@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 from bblocks import places
+import json
 
 from scripts.utils import filter_african_debtors, custom_sort, format_values
 from scripts.config import Paths, LATEST_YEAR, START_YEAR, NUM_EST_YEARS, SORT_PARAMS
@@ -549,6 +550,148 @@ def key_stat_chart_3() -> None:
     logger.info("Key stat chart 3 generated successfully.")
 
 
+class KeyStats:
+    """Class to generate key stats"""
+
+    def __init__(self):
+
+        self.key_stats: dict[str, str | int | float] = dict()
+
+    def dsa_stats(self) -> None:
+        """Key stats related to DSA risk ratings"""
+
+        df = pd.read_csv(Paths.raw_data / "dsa.csv")
+
+        # format data
+        df = (df
+              .assign(region = lambda d: places.resolve_places(d.country_name, to_type="region", not_found="ignore"))
+              .loc[:, ["country_name", "region", "risk_of_debt_distress"]]
+              )
+
+        # Africa number in/at high risk of debt distress
+        africa_num =  (df
+                      .loc[lambda d: (d.region == "Africa") & (d.risk_of_debt_distress.isin(["High",
+                                                                                             "In debt distress"]))]
+                      .country_name.nunique())
+
+        africa_share = int(round(africa_num / len(df.loc[lambda d: d.risk_of_debt_distress.isin(["High", "In debt distress"])]) * 100, 0))
+
+        self.key_stats["debt_distress_africa"] = africa_num
+        self.key_stats["debt_distress_africa_share"] = africa_share
+
+    def debt_stocks_stats(self) -> None:
+        """Key stats related to debt stocks"""
+
+        df = pd.read_csv(Paths.output / "chart_1_download.csv")
+
+        vals = (df
+        .loc[lambda d: (d.debtor_name == "Africa (excluding high income)") & (d.creditor_name == "All creditors")]
+        .groupby("year")
+        .agg({"value": "sum"}, observed=True)
+        .reset_index("year")
+        .sort_values("year")
+        .iloc[-1]
+        )
+
+        self.key_stats["debt_stocks_africa"] = format_values(vals.value) # total debt stocks for Africa in the latest year
+        self.key_stats["debt_stocks_africa_latest_year"] = int(vals.year)
+
+    def debt_service_stats(self) -> None:
+        """Key stats related to debt stocks"""
+
+        df = pd.read_csv(Paths.output / "chart_5_download.csv")
+
+        vals = (df
+        .loc[lambda d: (d.debtor_name == "Africa (excluding high income)") &
+                       (d.creditor_name == "All creditors") &
+                       (d.year <= LATEST_YEAR)
+        ]
+        .groupby("year")
+        .agg({"value": "sum"}, observed=True)
+        .reset_index("year")
+        .sort_values("year")
+        .iloc[-1]
+        )
+
+        self.key_stats["debt_service_africa"] = format_values(vals.value)
+        self.key_stats["debt_service_africa_latest_year"] = int(vals.year)
+
+    def debt_stocks_gdp_stats(self) -> None:
+        """Key stats related to debt stocks as a percent of GDP"""
+
+        df = pd.read_csv(Paths.output / "chart_2_download.csv")
+
+        vals = (df
+        .loc[lambda d: (d.debtor_name == "Africa (excluding high income) (median)"), ["year", "value"]]
+        .sort_values("year")
+        .iloc[-1]
+        )
+
+        self.key_stats["debt_to_gdp_africa"] = f"{round(vals.value, 1)}%"
+        self.key_stats["debt_to_gdp_africa_latest_year"] = int(vals.year)
+
+    def debt_stock_category_stats(self) -> None:
+        """Key stats related to debt stocks by category"""
+
+        df = pd.read_csv(Paths.output / "chart_1_download.csv")
+
+        # category shares - bilateral, multilateral, and private
+        category_vals = (df
+                         .loc[lambda d: (d.debtor_name == "Africa (excluding high income)") & (
+                d.creditor_name == "All creditors") & (d.year == LATEST_YEAR)]
+                         .groupby(["category"])
+                         .agg({"value": "sum"}, observed=True)
+                         ["value"].to_dict()
+                         )
+
+        total = sum(category_vals.values())
+        bilateral_val = category_vals.get("bilateral", 0)/total*100
+        multilateral_val = category_vals.get("multilateral", 0)/total*100
+        private_val = (category_vals.get("commercial banks", 0) +
+                       category_vals.get("other private", 0) +
+                       category_vals.get("bonds", 0) )/ total * 100
+
+
+        self.key_stats["debt_stocks_africa_bilateral_pct"] = f"{int(round(bilateral_val, 0))}%"
+        self.key_stats["debt_stocks_africa_multilateral_pct"] = f"{int(round(multilateral_val, 0))}%"
+        self.key_stats["debt_stocks_africa_private_pct"] = f"{int(round(private_val, 0))}%"
+
+    def china_lending_stats(self) -> None:
+        """Key stats related to China's share of lending"""
+
+        df = pd.read_csv(Paths.output / "chart_4_download.csv")
+
+        vals = (df
+        .loc[lambda d: (d.debtor_name == "Africa (excluding high income)")]
+        .loc[lambda d: d.year == d.year.max(), ["creditor", "year", "value"]]
+        )
+
+        self.key_stats["debt_stocks_africa_china_year"] = int(vals.year.max())
+
+        vals = vals.set_index("creditor")["value"].to_dict()
+        self.key_stats["debt_stocks_africa_china_bilateral"] = format_values(vals["China (bilateral)"])
+        self.key_stats["debt_stocks_africa_china_private"] = format_values(vals["China (private)"])
+
+    def generate_key_stats(self) -> None:
+        """Generate all key stats and export to json"""
+
+        self.dsa_stats() # generate DSA related key stats
+        self.debt_stocks_stats() # generate debt stocks related key stats
+        self.debt_service_stats() # generate debt service related key stats
+        self.debt_stocks_gdp_stats() # generate debt stocks as a percent of GDP related key stats
+        self.debt_stock_category_stats() # generate debt stocks by category related key stats
+        self.china_lending_stats() # generate china lending related key stats
+
+        # add latest year
+        self.key_stats["latest_year"] = LATEST_YEAR
+
+        # dump key stats to json
+        with open(Paths.output / "key_stats.json", "w") as f:
+            json.dump(self.key_stats, f, indent=4)
+
+        logger.info("Key stats generated successfully.")
+
+
 if __name__ == "__main__":
     logger.info("Generating charts...")
 
@@ -562,5 +705,6 @@ if __name__ == "__main__":
     key_stat_chart_1()  # Key stat chart 1: Africa total debt service
     key_stat_chart_2()  # Key stat chart 2: Africa total debt stocks
     key_stat_chart_3()  # Key stat chart 3: Africa median debt stocks % of GDP
+    KeyStats().generate_key_stats() # generate key stats
 
     logger.info("All charts generated successfully.")
