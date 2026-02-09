@@ -731,6 +731,9 @@ class KeyStats:
         # add latest year
         self.key_stats["latest_year"] = LATEST_YEAR
 
+        # Add current date for reference in day month year format
+        self.key_stats["date_updated"] = pd.Timestamp.now().strftime("%d %B %Y")
+
         # dump key stats to json
         with open(Paths.output / "key_stats.json", "w") as f:
             json.dump(self.key_stats, f, indent=4)
