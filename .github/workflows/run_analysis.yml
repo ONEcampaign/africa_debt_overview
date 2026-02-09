@@ -1,0 +1,59 @@
+name: Run Analysis
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1"
+
+permissions:
+  contents: write
+
+jobs:
+  run-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run get_raw_data script
+        run: uv run python -m scripts.extract_raw_data
+
+      - name: Run charts script
+        run: uv run python -m scripts.analysis
+
+      - name: Detect changes
+        id: git_status
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push changes
+        if: steps.git_status.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update analysis outputs"
+          git push origin HEAD:main
