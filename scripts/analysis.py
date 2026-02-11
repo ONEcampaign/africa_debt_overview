@@ -103,6 +103,7 @@ def _prepare_debt_stocks_data(df: pd.DataFrame) -> pd.DataFrame:
 #
 #     logger.info("Chart 1 generated successfully.")
 
+
 def chart_1() -> None:
     """Chart 1: bar, total debt stocks by creditor type separated for China"""
 
@@ -110,31 +111,41 @@ def chart_1() -> None:
 
     df = _prepare_debt_stocks_data(debt_stocks)
 
-
-    df = (df
-          .assign(category=lambda d: d.category.replace({"other private": "private",
-                                                         "commercial banks": "private",
-                                                         "bonds": "private"}))
-          .loc[lambda d: d.creditor_name != "All creditors"]
+    df = (
+        df.assign(
+            category=lambda d: d.category.replace(
+                {
+                    "other private": "private",
+                    "commercial banks": "private",
+                    "bonds": "private",
+                }
+            )
+        )
+        .loc[lambda d: d.creditor_name != "All creditors"]
         # change category to category ( China ) where creditor is China and and category (other) where creditor is not China only for private and bilateral categories
-          .assign(category=lambda d: np.where((d.creditor_name == "China") & (d.category.isin(["private", "bilateral"])),
-                                              d.category + " (China)", np.where((d.creditor_name != "China") & (d.category.isin(["private", "bilateral"])),
-                                                                                d.category + " (excl. China)",
-                                                                                d.category)
-                                              )
-                  )
-          .groupby(["debtor_name", "year", "category"], observed=True)
-          .agg({"value": "sum"})
-          .reset_index()
-
-          )
+        .assign(
+            category=lambda d: np.where(
+                (d.creditor_name == "China")
+                & (d.category.isin(["private", "bilateral"])),
+                d.category + " (China)",
+                np.where(
+                    (d.creditor_name != "China")
+                    & (d.category.isin(["private", "bilateral"])),
+                    d.category + " (excl. China)",
+                    d.category,
+                ),
+            )
+        )
+        .groupby(["debtor_name", "year", "category"], observed=True)
+        .agg({"value": "sum"})
+        .reset_index()
+    )
 
     df.to_csv(Paths.output / "chart_1_download.csv", index=False)
 
-    df = (df
-          .pivot(index=["debtor_name", "year"], columns="category", values="value")
-          .reset_index()
-          )
+    df = df.pivot(
+        index=["debtor_name", "year"], columns="category", values="value"
+    ).reset_index()
 
     df.to_csv(Paths.output / "chart_1_chart.csv", index=False)
 
