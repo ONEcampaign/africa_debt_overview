@@ -55,53 +55,99 @@ def _prepare_debt_stocks_data(df: pd.DataFrame) -> pd.DataFrame:
     return dff
 
 
-def chart_1() -> None:
-    """Chart 1: Bar, Total debt stocks"""
+# def chart_1() -> None:
+#     """Chart 1: Bar, Total debt stocks"""
+#
+#     # read debt stocks data
+#     debt_stocks = pd.read_parquet(Paths.raw_data / "ids_debt_stocks.parquet")
+#
+#     # prepare data
+#     dff = _prepare_debt_stocks_data(debt_stocks)
+#
+#     # save download data
+#     dff.to_csv(Paths.output / "chart_1_download.csv", index=False)
+#
+#     # prepare chart data
+#     chart_data = (
+#         dff.pivot(
+#             index=["debtor_name", "year", "creditor_name"],
+#             columns="category",
+#             values="value",
+#         )
+#         .reset_index()
+#         .pipe(custom_sort, SORT_PARAMS)
+#     )
+#
+#     chart_data.to_csv(Paths.output / "chart_1_chart.csv", index=False)
+#
+#     # generate chart json
+#     (
+#         chart_data.rename(
+#             columns={
+#                 "debtor_name": "filter1_values",
+#                 "year": "x_values",
+#                 "creditor_name": "filter2_values",
+#                 "bilateral": "y1",
+#                 "multilateral": "y2",
+#                 "bonds": "y3",
+#                 "commercial banks": "y4",
+#                 "other private": "y5",
+#             }
+#         )
+#         .assign(y_values=lambda d: d[["y1", "y2", "y3", "y4", "y5"]].values.tolist())
+#         .loc[:, ["filter1_values", "x_values", "filter2_values", "y_values"]]
+#         .to_json(
+#             Paths.output / "chart_1_chart.json", orient="records", date_format="iso"
+#         )
+#     )
+#
+#     logger.info("Chart 1 generated successfully.")
 
-    # read debt stocks data
+
+def chart_1() -> None:
+    """Chart 1: bar, total debt stocks by creditor type separated for China"""
+
     debt_stocks = pd.read_parquet(Paths.raw_data / "ids_debt_stocks.parquet")
 
-    # prepare data
-    dff = _prepare_debt_stocks_data(debt_stocks)
+    df = _prepare_debt_stocks_data(debt_stocks)
 
-    # save download data
-    dff.to_csv(Paths.output / "chart_1_download.csv", index=False)
-
-    # prepare chart data
-    chart_data = (
-        dff.pivot(
-            index=["debtor_name", "year", "creditor_name"],
-            columns="category",
-            values="value",
+    df = (
+        df.assign(
+            category=lambda d: d.category.replace(
+                {
+                    "other private": "private",
+                    "commercial banks": "private",
+                    "bonds": "private",
+                }
+            )
         )
+        .loc[lambda d: d.creditor_name != "All creditors"]
+        # change category to category ( China ) where creditor is China and and category (other) where creditor is not China only for private and bilateral categories
+        .assign(
+            category=lambda d: np.where(
+                (d.creditor_name == "China")
+                & (d.category.isin(["private", "bilateral"])),
+                d.category + " (China)",
+                np.where(
+                    (d.creditor_name != "China")
+                    & (d.category.isin(["private", "bilateral"])),
+                    d.category + " (excl. China)",
+                    d.category,
+                ),
+            )
+        )
+        .groupby(["debtor_name", "year", "category"], observed=True)
+        .agg({"value": "sum"})
         .reset_index()
-        .pipe(custom_sort, SORT_PARAMS)
     )
 
-    chart_data.to_csv(Paths.output / "chart_1_chart.csv", index=False)
+    df.to_csv(Paths.output / "chart_1_download.csv", index=False)
 
-    # generate chart json
-    (
-        chart_data.rename(
-            columns={
-                "debtor_name": "filter1_values",
-                "year": "x_values",
-                "creditor_name": "filter2_values",
-                "bilateral": "y1",
-                "multilateral": "y2",
-                "bonds": "y3",
-                "commercial banks": "y4",
-                "other private": "y5",
-            }
-        )
-        .assign(y_values=lambda d: d[["y1", "y2", "y3", "y4", "y5"]].values.tolist())
-        .loc[:, ["filter1_values", "x_values", "filter2_values", "y_values"]]
-        .to_json(
-            Paths.output / "chart_1_chart.json", orient="records", date_format="iso"
-        )
-    )
+    df = df.pivot(
+        index=["debtor_name", "year"], columns="category", values="value"
+    ).reset_index()
 
-    logger.info("Chart 1 generated successfully.")
+    df.to_csv(Paths.output / "chart_1_chart.csv", index=False)
 
 
 def _get_gdp_df() -> pd.DataFrame:
