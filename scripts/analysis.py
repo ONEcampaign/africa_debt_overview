@@ -717,9 +717,13 @@ class KeyStats:
 
         total = sum(category_vals.values())
         bilateral_val = (
-            category_vals.get("bilateral (China)", 0)
-            + category_vals.get("bilateral (excl. China)", 0)
-        ) / total * 100
+            (
+                category_vals.get("bilateral (China)", 0)
+                + category_vals.get("bilateral (excl. China)", 0)
+            )
+            / total
+            * 100
+        )
         multilateral_val = category_vals.get("multilateral", 0) / total * 100
         private_val = (
             (
