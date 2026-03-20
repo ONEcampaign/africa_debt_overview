@@ -764,6 +764,28 @@ class KeyStats:
             vals["China (private)"]
         )
 
+    def debt_service_vs_social_spending_stats(self) -> None:
+        """Key stats: number of countries where debt service exceeds health/education spending"""
+
+        df = pd.read_csv(Paths.output / "chart_6_chart.csv")
+
+        # Exclude median aggregate and rows without entity_code, filter to recent years
+        df = df.loc[lambda d: d.entity_code.notna() & (d.year >= 2021)]
+
+        # Health: latest year per country where both debt service and health are available
+        health = df.dropna(subset=["debt service", "health expenditure"])
+        health = health.loc[health.groupby("entity_code")["year"].idxmax()]
+        self.key_stats["debt_service_gt_health_count"] = int(
+            (health["debt service"] > health["health expenditure"]).sum()
+        )
+
+        # Education: latest year per country where both debt service and education are available
+        education = df.dropna(subset=["debt service", "education expenditure"])
+        education = education.loc[education.groupby("entity_code")["year"].idxmax()]
+        self.key_stats["debt_service_gt_education_count"] = int(
+            (education["debt service"] > education["education expenditure"]).sum()
+        )
+
     def generate_key_stats(self) -> None:
         """Generate all key stats and export to json"""
 
@@ -773,6 +795,7 @@ class KeyStats:
         self.debt_stocks_gdp_stats()  # generate debt stocks as a percent of GDP related key stats
         self.debt_stock_category_stats()  # generate debt stocks by category related key stats
         self.china_lending_stats()  # generate china lending related key stats
+        self.debt_service_vs_social_spending_stats()  # generate debt service vs health/education key stats
 
         # add latest year
         self.key_stats["latest_year"] = LATEST_YEAR
