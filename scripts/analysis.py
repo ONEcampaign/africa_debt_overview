@@ -575,10 +575,7 @@ def key_stat_chart_2() -> None:
     df = pd.read_csv(Paths.output / "chart_1_download.csv")
 
     (
-        df.loc[
-            lambda d: (d.debtor_name == "Africa (excluding high income)")
-            & (d.creditor_name == "All creditors")
-        ]
+        df.loc[lambda d: d.debtor_name == "Africa (excluding high income)"]
         .groupby(["year"], observed=True, as_index=False)
         .agg({"value": "sum"})
         .assign(annotation=lambda d: d.value.apply(format_values))
@@ -651,10 +648,7 @@ class KeyStats:
         df = pd.read_csv(Paths.output / "chart_1_download.csv")
 
         vals = (
-            df.loc[
-                lambda d: (d.debtor_name == "Africa (excluding high income)")
-                & (d.creditor_name == "All creditors")
-            ]
+            df.loc[lambda d: d.debtor_name == "Africa (excluding high income)"]
             .groupby("year")
             .agg({"value": "sum"}, observed=True)
             .reset_index("year")
@@ -714,7 +708,6 @@ class KeyStats:
         category_vals = (
             df.loc[
                 lambda d: (d.debtor_name == "Africa (excluding high income)")
-                & (d.creditor_name == "All creditors")
                 & (d.year == LATEST_YEAR)
             ]
             .groupby(["category"])
@@ -723,13 +716,15 @@ class KeyStats:
         )
 
         total = sum(category_vals.values())
-        bilateral_val = category_vals.get("bilateral", 0) / total * 100
+        bilateral_val = (
+            category_vals.get("bilateral (China)", 0)
+            + category_vals.get("bilateral (excl. China)", 0)
+        ) / total * 100
         multilateral_val = category_vals.get("multilateral", 0) / total * 100
         private_val = (
             (
-                category_vals.get("commercial banks", 0)
-                + category_vals.get("other private", 0)
-                + category_vals.get("bonds", 0)
+                category_vals.get("private (China)", 0)
+                + category_vals.get("private (excl. China)", 0)
             )
             / total
             * 100
