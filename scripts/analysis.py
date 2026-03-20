@@ -575,10 +575,7 @@ def key_stat_chart_2() -> None:
     df = pd.read_csv(Paths.output / "chart_1_download.csv")
 
     (
-        df.loc[
-            lambda d: (d.debtor_name == "Africa (excluding high income)")
-            & (d.creditor_name == "All creditors")
-        ]
+        df.loc[lambda d: d.debtor_name == "Africa (excluding high income)"]
         .groupby(["year"], observed=True, as_index=False)
         .agg({"value": "sum"})
         .assign(annotation=lambda d: d.value.apply(format_values))
@@ -651,10 +648,7 @@ class KeyStats:
         df = pd.read_csv(Paths.output / "chart_1_download.csv")
 
         vals = (
-            df.loc[
-                lambda d: (d.debtor_name == "Africa (excluding high income)")
-                & (d.creditor_name == "All creditors")
-            ]
+            df.loc[lambda d: d.debtor_name == "Africa (excluding high income)"]
             .groupby("year")
             .agg({"value": "sum"}, observed=True)
             .reset_index("year")
@@ -714,7 +708,6 @@ class KeyStats:
         category_vals = (
             df.loc[
                 lambda d: (d.debtor_name == "Africa (excluding high income)")
-                & (d.creditor_name == "All creditors")
                 & (d.year == LATEST_YEAR)
             ]
             .groupby(["category"])
@@ -723,13 +716,19 @@ class KeyStats:
         )
 
         total = sum(category_vals.values())
-        bilateral_val = category_vals.get("bilateral", 0) / total * 100
+        bilateral_val = (
+            (
+                category_vals.get("bilateral (China)", 0)
+                + category_vals.get("bilateral (excl. China)", 0)
+            )
+            / total
+            * 100
+        )
         multilateral_val = category_vals.get("multilateral", 0) / total * 100
         private_val = (
             (
-                category_vals.get("commercial banks", 0)
-                + category_vals.get("other private", 0)
-                + category_vals.get("bonds", 0)
+                category_vals.get("private (China)", 0)
+                + category_vals.get("private (excl. China)", 0)
             )
             / total
             * 100
@@ -764,6 +763,28 @@ class KeyStats:
             vals["China (private)"]
         )
 
+    def debt_service_vs_social_spending_stats(self) -> None:
+        """Key stats: number of countries where debt service exceeds health/education spending"""
+
+        df = pd.read_csv(Paths.output / "chart_6_chart.csv")
+
+        # Exclude median aggregate and rows without entity_code, filter to recent years
+        df = df.loc[lambda d: d.entity_code.notna() & (d.year >= 2021)]
+
+        # Health: latest year per country where both debt service and health are available
+        health = df.dropna(subset=["debt service", "health expenditure"])
+        health = health.loc[health.groupby("entity_code")["year"].idxmax()]
+        self.key_stats["debt_service_gt_health_count"] = int(
+            (health["debt service"] > health["health expenditure"]).sum()
+        )
+
+        # Education: latest year per country where both debt service and education are available
+        education = df.dropna(subset=["debt service", "education expenditure"])
+        education = education.loc[education.groupby("entity_code")["year"].idxmax()]
+        self.key_stats["debt_service_gt_education_count"] = int(
+            (education["debt service"] > education["education expenditure"]).sum()
+        )
+
     def generate_key_stats(self) -> None:
         """Generate all key stats and export to json"""
 
@@ -773,6 +794,7 @@ class KeyStats:
         self.debt_stocks_gdp_stats()  # generate debt stocks as a percent of GDP related key stats
         self.debt_stock_category_stats()  # generate debt stocks by category related key stats
         self.china_lending_stats()  # generate china lending related key stats
+        self.debt_service_vs_social_spending_stats()  # generate debt service vs health/education key stats
 
         # add latest year
         self.key_stats["latest_year"] = LATEST_YEAR
