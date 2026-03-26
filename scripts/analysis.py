@@ -293,6 +293,13 @@ def chart_4() -> None:
         columns={"category": "creditor"}
     )
 
+    # convert to proportion of total debt stocks
+    combined_df["value"] = (
+        combined_df["value"]
+        / combined_df.groupby(["debtor_name", "year"])["value"].transform("sum")
+        * 100
+    )
+
     # export download data
     combined_df.to_csv(Paths.output / "chart_4_download.csv", index=False)
 
