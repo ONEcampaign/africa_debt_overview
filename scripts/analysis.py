@@ -763,11 +763,11 @@ class KeyStats:
         self.key_stats["debt_stocks_africa_china_year"] = int(vals.year.max())
 
         vals = vals.set_index("creditor")["value"].to_dict()
-        self.key_stats["debt_stocks_africa_china_bilateral"] = format_values(
-            vals["China (bilateral)"]
+        self.key_stats["debt_stocks_africa_china_bilateral"] = (
+            f"{int(round(vals['China (bilateral)'], 0))}%"
         )
-        self.key_stats["debt_stocks_africa_china_private"] = format_values(
-            vals["China (private)"]
+        self.key_stats["debt_stocks_africa_china_private"] = (
+            f"{int(round(vals['China (private)'], 0))}%"
         )
 
     def debt_service_vs_social_spending_stats(self) -> None:
