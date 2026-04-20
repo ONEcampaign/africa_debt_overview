@@ -59,8 +59,8 @@ Algeria,2003,China (bilateral),0.15748710325411355
 Algeria,2003,China (private),0.0007812930315769952
 Algeria,2004,China (bilateral),0.1634257535625797
 Algeria,2004,China (private),0.0038713575892519326
-Algeria,2005,China (bilateral),0.17623412256344873
-Algeria,2005,China (private),0.005097879919114523
+Algeria,2005,China (bilateral),0.1762341225634487
+Algeria,2005,China (private),0.005097879919114522
 Algeria,2006,China (bilateral),0.6605977285218032
 Algeria,2006,China (private),0.0
 Algeria,2007,China (bilateral),1.5966536111336138
@@ -108,7 +108,7 @@ Angola,2014,China (bilateral),7.053456268707595
 Angola,2014,China (private),25.36755309421652
 Angola,2015,China (bilateral),7.858563712931618
 Angola,2015,China (private),22.282716989329966
-Angola,2016,China (bilateral),8.053882320982623
+Angola,2016,China (bilateral),8.053882320982622
 Angola,2016,China (private),37.83550108645768
 Angola,2017,China (bilateral),8.359812533514392
 Angola,2017,China (private),40.29239053102436
@@ -243,14 +243,14 @@ Cabo Verde,2008,China (bilateral),0.0
 Cabo Verde,2009,China (bilateral),2.3513598177577215
 Cabo Verde,2010,China (bilateral),2.572678034718763
 Cabo Verde,2011,China (bilateral),2.931405549116955
-Cabo Verde,2012,China (bilateral),2.5761777306574314
+Cabo Verde,2012,China (bilateral),2.5761777306574323
 Cabo Verde,2013,China (bilateral),2.213132796327848
 Cabo Verde,2014,China (bilateral),2.050102771560305
 Cabo Verde,2015,China (bilateral),1.7987222082815786
-Cabo Verde,2016,China (bilateral),1.5537328553722873
+Cabo Verde,2016,China (bilateral),1.5537328553722876
 Cabo Verde,2017,China (bilateral),1.9591911195945486
 Cabo Verde,2018,China (bilateral),1.8636085064877062
-Cabo Verde,2019,China (bilateral),1.6626374489054099
+Cabo Verde,2019,China (bilateral),1.6626374489054103
 Cabo Verde,2020,China (bilateral),1.553748057548443
 Cabo Verde,2021,China (bilateral),1.6572265171742675
 Cabo Verde,2022,China (bilateral),1.4527959112419064
@@ -453,11 +453,11 @@ Cote d'Ivoire,2010,China (bilateral),0.9241028775622093
 Cote d'Ivoire,2010,China (private),0.2763384882015293
 Cote d'Ivoire,2011,China (bilateral),0.8134388511187496
 Cote d'Ivoire,2011,China (private),0.5172567190656705
-Cote d'Ivoire,2012,China (bilateral),2.194069906439109
-Cote d'Ivoire,2012,China (private),1.0615277174268412
+Cote d'Ivoire,2012,China (bilateral),2.1940699064391085
+Cote d'Ivoire,2012,China (private),1.061527717426841
 Cote d'Ivoire,2013,China (bilateral),5.654107074126405
 Cote d'Ivoire,2013,China (private),0.9186069473474813
-Cote d'Ivoire,2014,China (bilateral),7.722189772091614
+Cote d'Ivoire,2014,China (bilateral),7.722189772091613
 Cote d'Ivoire,2014,China (private),0.8838966880730303
 Cote d'Ivoire,2015,China (bilateral),8.761218856987128
 Cote d'Ivoire,2015,China (private),0.599427583349921
@@ -511,7 +511,7 @@ Djibouti,2024,China (bilateral),50.54259748598686
 "Egypt, Arab Rep.",2004,China (bilateral),0.39132530459082704
 "Egypt, Arab Rep.",2005,China (bilateral),0.34945461320705984
 "Egypt, Arab Rep.",2006,China (bilateral),0.3805522498056125
-"Egypt, Arab Rep.",2007,China (bilateral),0.39041492949343304
+"Egypt, Arab Rep.",2007,China (bilateral),0.3904149294934331
 "Egypt, Arab Rep.",2007,China (private),0.0
 "Egypt, Arab Rep.",2008,China (bilateral),0.43995926341921004
 "Egypt, Arab Rep.",2008,China (private),0.0
@@ -523,7 +523,7 @@ Djibouti,2024,China (bilateral),50.54259748598686
 "Egypt, Arab Rep.",2011,China (private),0.0
 "Egypt, Arab Rep.",2012,China (bilateral),1.1699225436324936
 "Egypt, Arab Rep.",2013,China (bilateral),0.8912122491766754
-"Egypt, Arab Rep.",2014,China (bilateral),0.9741525511946205
+"Egypt, Arab Rep.",2014,China (bilateral),0.9741525511946202
 "Egypt, Arab Rep.",2015,China (bilateral),0.7920125677452039
 "Egypt, Arab Rep.",2016,China (bilateral),3.6609278201571374
 "Egypt, Arab Rep.",2017,China (bilateral),3.582102797439155
@@ -803,7 +803,7 @@ Kenya,2012,China (bilateral),7.884278240593293
 Kenya,2012,China (private),0.0
 Kenya,2013,China (bilateral),9.546852335897622
 Kenya,2014,China (bilateral),16.76333603362199
-Kenya,2015,China (bilateral),20.642528813752968
+Kenya,2015,China (bilateral),20.642528813752964
 Kenya,2016,China (bilateral),25.209495779871023
 Kenya,2017,China (bilateral),25.984225603942352
 Kenya,2018,China (bilateral),25.48977494119577
@@ -967,7 +967,7 @@ Mauritius,2009,China (bilateral),7.484795636621391
 Mauritius,2010,China (bilateral),14.874205774053712
 Mauritius,2011,China (bilateral),18.733387908129725
 Mauritius,2012,China (bilateral),24.566564794267844
-Mauritius,2013,China (bilateral),23.255025727070144
+Mauritius,2013,China (bilateral),23.25502572707015
 Mauritius,2014,China (bilateral),23.732658898043553
 Mauritius,2015,China (bilateral),24.28680021211724
 Mauritius,2016,China (bilateral),22.62248118064805
@@ -1236,7 +1236,7 @@ Sub-Saharan Africa (excluding high income),2020,China (bilateral),13.01807320776
 Sub-Saharan Africa (excluding high income),2020,China (private),5.050313392115506
 Sub-Saharan Africa (excluding high income),2021,China (bilateral),12.835608825480419
 Sub-Saharan Africa (excluding high income),2021,China (private),4.836083331721473
-Sub-Saharan Africa (excluding high income),2022,China (bilateral),12.345307180423454
+Sub-Saharan Africa (excluding high income),2022,China (bilateral),12.345307180423456
 Sub-Saharan Africa (excluding high income),2022,China (private),4.637615841471021
 Sub-Saharan Africa (excluding high income),2023,China (bilateral),11.536608705102882
 Sub-Saharan Africa (excluding high income),2023,China (private),4.008460904421806
@@ -1658,7 +1658,7 @@ Cabo Verde,2015,Other creditors,98.20127779171843
 Cabo Verde,2016,Other creditors,98.44626714462771
 Cabo Verde,2017,Other creditors,98.04080888040545
 Cabo Verde,2018,Other creditors,98.13639149351229
-Cabo Verde,2019,Other creditors,98.3373625510946
+Cabo Verde,2019,Other creditors,98.33736255109459
 Cabo Verde,2020,Other creditors,98.44625194245155
 Cabo Verde,2021,Other creditors,98.34277348282573
 Cabo Verde,2022,Other creditors,98.5472040887581
@@ -2283,7 +2283,7 @@ Mauritius,2009,Other creditors,92.5152043633786
 Mauritius,2010,Other creditors,85.1257942259463
 Mauritius,2011,Other creditors,81.26661209187027
 Mauritius,2012,Other creditors,75.43343520573215
-Mauritius,2013,Other creditors,76.74497427292984
+Mauritius,2013,Other creditors,76.74497427292985
 Mauritius,2014,Other creditors,76.26734110195645
 Mauritius,2015,Other creditors,75.71319978788277
 Mauritius,2016,Other creditors,77.37751881935195
@@ -2567,7 +2567,7 @@ Sub-Saharan Africa (excluding high income),2018,Other creditors,80.7822184359100
 Sub-Saharan Africa (excluding high income),2019,Other creditors,81.15976802741119
 Sub-Saharan Africa (excluding high income),2020,Other creditors,81.9316134001227
 Sub-Saharan Africa (excluding high income),2021,Other creditors,82.32830784279811
-Sub-Saharan Africa (excluding high income),2022,Other creditors,83.01707697810554
+Sub-Saharan Africa (excluding high income),2022,Other creditors,83.01707697810552
 Sub-Saharan Africa (excluding high income),2023,Other creditors,84.45493039047531
 Sub-Saharan Africa (excluding high income),2024,Other creditors,85.96198470077948
 Sudan,2000,Other creditors,90.07339546409669
