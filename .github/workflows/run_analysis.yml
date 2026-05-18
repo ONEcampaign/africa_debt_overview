@@ -35,10 +35,36 @@ jobs:
         run: uv sync --frozen
 
       - name: Run get_raw_data script
-        run: uv run python -m scripts.extract_raw_data
+        env:
+          MAX_ATTEMPTS: "3"
+          RETRY_WAIT_SECONDS: "300"
+        run: |
+          attempt=1
+          until uv run python -m scripts.extract_raw_data; do
+            if [ "$attempt" -ge "$MAX_ATTEMPTS" ]; then
+              echo "::error::extract_raw_data failed after $attempt attempts"
+              exit 1
+            fi
+            echo "::warning::Attempt $attempt failed; retrying in ${RETRY_WAIT_SECONDS}s..."
+            attempt=$((attempt + 1))
+            sleep "$RETRY_WAIT_SECONDS"
+          done
 
       - name: Run charts script
-        run: uv run python -m scripts.analysis
+        env:
+          MAX_ATTEMPTS: "3"
+          RETRY_WAIT_SECONDS: "300"
+        run: |
+          attempt=1
+          until uv run python -m scripts.analysis; do
+            if [ "$attempt" -ge "$MAX_ATTEMPTS" ]; then
+              echo "::error::analysis failed after $attempt attempts"
+              exit 1
+            fi
+            echo "::warning::Attempt $attempt failed; retrying in ${RETRY_WAIT_SECONDS}s..."
+            attempt=$((attempt + 1))
+            sleep "$RETRY_WAIT_SECONDS"
+          done
 
       - name: Detect changes
         id: git_status
