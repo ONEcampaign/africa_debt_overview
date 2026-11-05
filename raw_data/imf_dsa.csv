@@ -1,0 +1,69 @@
+country_name,latest_publication,risk_of_debt_distress,debt_sustainability_assessment
+Afghanistan,2021-06-28 00:00:00,High,Sustainable
+Bangladesh,2026-01-30 00:00:00,Moderate,
+Benin,2026-04-30 00:00:00,Moderate,
+Bhutan,2026-01-27 00:00:00,Moderate,
+Burkina Faso,2026-07-28 00:00:00,Moderate,
+Burundi,2026-06-23 00:00:00,High,Sustainable
+Cambodia,2026-09-28 00:00:00,Low,
+Cameroon,2026-04-03 00:00:00,High,Sustainable
+Cabo Verde,2026-02-26 00:00:00,Moderate,
+Central African Republic,2025-06-23 00:00:00,High,Sustainable
+Chad,2025-08-13 00:00:00,High,Sustainable
+Comoros,2026-02-19 00:00:00,High,Sustainable
+"Congo, Democratic Republic of",2026-09-08 00:00:00,Moderate,
+"Congo, Republic of",2026-04-03 00:00:00,In debt distress,Sustainable
+Côte d'Ivoire,2026-07-09 00:00:00,Low,
+Djibouti,2025-09-22 00:00:00,In debt distress,Unsustainable
+Dominica,2026-06-02 00:00:00,Moderate,
+Eritrea,,,
+Ethiopia,2026-07-13 00:00:00,In debt distress,Unsustainable
+"Gambia, The",2026-07-14 00:00:00,High,Sustainable
+Ghana,2026-08-04 00:00:00,Moderate,
+Grenada,2025-02-04 00:00:00,In debt distress,Sustainable
+Guinea,2024-05-17 00:00:00,Moderate,
+Guinea-Bissau,2026-06-17 00:00:00,High,Sustainable
+Haiti,2025-12-16 00:00:00,High,Sustainable
+Honduras,2026-06-30 00:00:00,Low,
+Kenya,2024-11-01 00:00:00,High,Sustainable
+Kiribati,2026-05-15 00:00:00,High,Sustainable
+Kyrgyz Republic,2026-07-02 00:00:00,Moderate,
+Lao P.D.R.,2026-02-20 00:00:00,In debt distress,Unsustainable
+Lesotho,2025-09-18 00:00:00,Moderate,
+Liberia,2026-05-13 00:00:00,Moderate,
+Madagascar,2025-03-21 00:00:00,Moderate,
+Malawi,2025-08-06 00:00:00,In debt distress,Unsustainable
+Maldives,2024-05-13 00:00:00,High,Unsustainable
+Mali,2025-09-10 00:00:00,Moderate,
+Marshall Islands,2025-12-04 00:00:00,Moderate,
+Mauritania,2026-06-29 00:00:00,Moderate,
+Micronesia,2026-05-05 00:00:00,Moderate,
+Moldova,2026-03-05 00:00:00,Low,
+Mozambique,2026-02-19 00:00:00,High,Unsustainable
+Myanmar,2021-01-28 00:00:00,Low,
+Nepal,2026-06-08 00:00:00,Low,
+Nicaragua,2026-01-26 00:00:00,Moderate,
+Niger,2026-03-31 00:00:00,High,Sustainable
+Papua New Guinea,2026-06-10 00:00:00,High,Sustainable
+Rwanda,2026-06-12 00:00:00,Moderate,
+Samoa,2026-09-21 00:00:00,Moderate,
+São Tomé and Príncipe,2025-12-23 00:00:00,In debt distress,Sustainable
+Senegal,2023-07-07 00:00:00,Moderate,
+Sierra Leone,2026-07-07 00:00:00,High,Sustainable
+Solomon Islands,2026-07-07 00:00:00,Low,
+Somalia,2025-12-16 00:00:00,Moderate,
+South Sudan,2024-06-10 00:00:00,High,Sustainable
+St. Vincent and the Grenadines,2026-07-17 00:00:00,High,Unsustainable
+Sudan,2021-07-01 00:00:00,In debt distress,Sustainable
+Tajikistan,2025-07-08 00:00:00,High,Sustainable
+Tanzania,2025-07-03 00:00:00,Moderate,
+Timor Leste,2025-09-26 00:00:00,Moderate,
+Togo,2026-07-22 00:00:00,Moderate,
+Tonga,2025-11-10 00:00:00,High,Sustainable
+Tuvalu,2025-09-12 00:00:00,High,Sustainable
+Uganda,2026-08-06 00:00:00,Moderate,
+Uzbekistan,2026-06-23 00:00:00,Low,
+Vanuatu,2025-09-25 00:00:00,Moderate,
+"Yemen, Republic of",2026-04-03 00:00:00,In debt distress,Unsustainable
+Zambia,2026-02-02 00:00:00,High,Sustainable
+Zimbabwe,2025-10-02 00:00:00,In debt distress,Unsustainable
