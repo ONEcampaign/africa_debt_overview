@@ -57,5 +57,6 @@ AGENTS.md
 
 raw_data/*
 !raw_data/README.md
+!raw_data/imf_dsa.csv
 #output/*
 

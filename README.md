@@ -24,11 +24,22 @@ uv run python scripts/analysis.py
 
 Outputs are saved to `output/` as JSON and CSV files (one per chart, plus a `key_stats.json` summary).
 
+Raw data in `raw_data/` is not tracked in version control, except for the IMF list of
+debt sustainability assessments (`raw_data/imf_dsa.csv`). The IMF currently blocks
+scripted downloads of that list. When the download fails, `extract_raw_data.py` logs a
+warning and the analysis uses the saved copy. To update it by hand, save
+https://www.imf.org/external/Pubs/ft/dsa/DSAlist.pdf from a browser and run:
+
+```bash
+uv run python -m scripts.update_dsa path/to/DSAlist.pdf
+```
+
 ## Project Structure
 
 - `scripts/` — Analysis and data extraction scripts
   - `extract_raw_data.py` — Fetches data from external APIs
   - `analysis.py` — Processes data and generates charts/downloads
+  - `update_dsa.py` — Updates the saved IMF DSA list from a PDF downloaded by hand
   - `utils.py` — Helper functions
   - `config.py` — Paths, year ranges, and region settings
   - `logger.py` — Logging setup
