@@ -28,6 +28,11 @@ dev = [
     "pre-commit>=3.0.0",
 ]
 
+[tool.uv]
+# bblocks-data-importers 0.5.0 caps imf-reader below 2.0. imf-reader 2.x picks
+# the latest WEO release correctly (1.x labels the live dataset "October 2025").
+override-dependencies = ["imf-reader>=2.3.0"]
+
 [tool.ruff]
 line-length = 88
 target-version = "py312"
