@@ -2,10 +2,15 @@
 
 import pandas as pd
 import numpy as np
-from bblocks import places
 import json
 
-from scripts.utils import filter_african_debtors, custom_sort, format_values
+from scripts.utils import (
+    african_iso3_codes,
+    custom_sort,
+    filter_african_debtors,
+    format_values,
+    names_to_iso3,
+)
 from scripts.config import Paths, LATEST_YEAR, START_YEAR, NUM_EST_YEARS, SORT_PARAMS
 from scripts.logger import logger
 
@@ -157,11 +162,7 @@ def _get_gdp_df() -> pd.DataFrame:
     gdp = pd.read_csv(Paths.raw_data / "gdp.csv")
 
     return (
-        gdp.assign(
-            iso3_code=lambda d: places.resolve_places(
-                d.entity_code, to_type="iso3_code", not_found="ignore"
-            )
-        )
+        gdp.assign(iso3_code=lambda d: names_to_iso3(d.entity_code))
         .dropna(subset=["iso3_code"])
         .loc[:, ["iso3_code", "year", "value"]]
         .rename(columns={"value": "gdp"})
@@ -182,11 +183,7 @@ def chart_2() -> None:
         .groupby(["debtor_name", "year"], observed=True)  # aggregate across categories
         .agg({"value": "sum"})
         .reset_index()
-        .assign(
-            iso3_code=lambda d: places.resolve_places(
-                d.debtor_name, to_type="iso3_code", not_found="ignore"
-            )
-        )
+        .assign(iso3_code=lambda d: names_to_iso3(d.debtor_name))
         .dropna(subset=["iso3_code"])  # keep only countries
     )
 
@@ -470,11 +467,7 @@ def chart_6() -> None:
         ]
         .groupby(["debtor_name", "year"], as_index=False)
         .agg({"value": "sum"})
-        .assign(
-            entity_code=lambda d: places.resolve_places(
-                d.debtor_name, to_type="iso3_code", not_found="ignore"
-            )
-        )
+        .assign(entity_code=lambda d: names_to_iso3(d.debtor_name))
         .dropna(subset="entity_code")
         .reset_index(drop=True)
     )
@@ -508,12 +501,7 @@ def chart_6() -> None:
 
     # Add Africa median values
     africa_median = (
-        ds_df.assign(
-            region=lambda d: places.resolve_places(
-                d.entity_code, from_type="iso3_code", to_type="region"
-            )
-        )
-        .loc[lambda d: d.region == "Africa"]
+        ds_df.loc[lambda d: d.entity_code.isin(african_iso3_codes())]
         .groupby("year", as_index=False)
         .agg(
             {
@@ -616,18 +604,16 @@ class KeyStats:
     def dsa_stats(self) -> None:
         """Key stats related to DSA risk ratings"""
 
-        df = pd.read_csv(Paths.raw_data / "dsa.csv")
+        df = pd.read_csv(Paths.raw_data / "imf_dsa.csv")
 
         # format data
         df = df.assign(
-            region=lambda d: places.resolve_places(
-                d.country_name, to_type="region", not_found="ignore"
-            )
-        ).loc[:, ["country_name", "region", "risk_of_debt_distress"]]
+            is_africa=lambda d: names_to_iso3(d.country_name).isin(african_iso3_codes())
+        ).loc[:, ["country_name", "is_africa", "risk_of_debt_distress"]]
 
         # Africa number in/at high risk of debt distress
         africa_num = df.loc[
-            lambda d: (d.region == "Africa")
+            lambda d: d.is_africa
             & (d.risk_of_debt_distress.isin(["High", "In debt distress"]))
         ].country_name.nunique()
 

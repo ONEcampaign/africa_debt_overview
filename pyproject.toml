@@ -11,9 +11,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "bblocks-data-importers>=0.5.0",
-    "bblocks-places>=0.0.4",
     "ipykernel>=7.1.0",
     "pydeflate>=2.3.3",
+    "resolvekit[pandas]>=0.1.13",
     "unesco-reader>=3.0.0",
 ]
 
@@ -27,6 +27,11 @@ dev = [
     "ruff>=0.3.0",
     "pre-commit>=3.0.0",
 ]
+
+[tool.uv]
+# bblocks-data-importers 0.5.0 caps imf-reader below 2.0. imf-reader 2.x picks
+# the latest WEO release correctly (1.x labels the live dataset "October 2025").
+override-dependencies = ["imf-reader>=2.3.0"]
 
 [tool.ruff]
 line-length = 88

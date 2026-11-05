@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 START_YEAR = 2000
-LATEST_YEAR = 2024
+LATEST_YEAR = 2025
 NUM_EST_YEARS = 6
 GHED_END_YEAR = 2023
 
